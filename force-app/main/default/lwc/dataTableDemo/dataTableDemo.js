@@ -6,6 +6,7 @@ import getAudditupd from '@salesforce/apex/TableController.getAuditsUpdate'
 import getAudditcrea from '@salesforce/apex/TableController.getAuditsCreate'
 import getContacts from '@salesforce/apex/PdfGenerator.getContactsController';
 import getEmailSend from '@salesforce/apex/EmailClass.getEmailSend';
+import getEmailSendhistory from '@salesforce/apex/EmailClass.getEmailSendhistory';
 import {loadScript} from "lightning/platformResourceLoader";
 import JSPDF from '@salesforce/resourceUrl/jspdf';
 
@@ -145,6 +146,21 @@ for (const element of selected) {
         this.generatePdf(5555);
 
     });
+}
+historyclick(){
+    var el = this.template.querySelector('lightning-datatable');
+
+    console.log(el);
+    var selected = el.getSelectedRows();
+    let selectedIdsArray = [];
+    for (const element of selected) {
+        console.log(element.name_of_object__c);
+        selectedIdsArray.push(element.name_of_object__c);
+    
+    }
+    getEmailSendhistory({content :selectedIdsArray}).then(result=>{
+    
+    })
 }
 
 /*createHeaders(keys) {
