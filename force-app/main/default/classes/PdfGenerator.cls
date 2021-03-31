@@ -6,8 +6,7 @@ public with sharing class PdfGenerator
 {
 @AuraEnabled
 public static List<public_dataaudit__x> getContactsController(){
-	//return [SELECT Id, FirstName, LastName FROM Contact LIMIT 1000];
-	return [SELECT date__c,name_of_object__c,name_of_field__c FROM public_dataaudit__x];
-	
+return [SELECT date__c,name_of_object__c,name_of_field__c FROM public_dataaudit__x];
+
 }
 }

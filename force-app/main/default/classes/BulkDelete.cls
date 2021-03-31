@@ -1,5 +1,5 @@
 public class BulkDelete {
-    public  void bulkdeletefuntion(){
+public  void bulkdeletefuntion(){
 Messaging.SingleEmailMessage message = new Messaging.SingleEmailMessage();
 message.toAddresses = new String[] { 'mediouniahmed11@yahoo.com' };
 message.optOutPolicy = 'FILTER';
@@ -9,9 +9,8 @@ Messaging.SingleEmailMessage[] messages =   new List<Messaging.SingleEmailMessag
 Messaging.SendEmailResult[] results = Messaging.sendEmail(messages);
 
 if (results[0].success) {
-    System.debug('The email was sent successfully.');
+System.debug('The email was sent successfully.');
 } else {
-    System.debug('The email failed to send: ' + results[0].errors[0].message);
+System.debug('The email failed to send: ' + results[0].errors[0].message);
 }
-    }}
-    
+}}

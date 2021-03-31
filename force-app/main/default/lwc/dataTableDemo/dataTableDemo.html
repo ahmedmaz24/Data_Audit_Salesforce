@@ -1,26 +1,26 @@
 <template>
 <lightning-card title ="Audit">
-    <template if:true={tableData}>
+<template if:true={tableData}>
 <lightning-button onclick={handleclick} value="Demo" label="E-mail" icon-name="utility:save"></lightning-button>
 <lightning-button  onclick ={pdfclick} variant="brand" label="PDF" title="Primary action"  class="slds-m-left_x-small"></lightning-button>
 <lightning-button  onclick ={historyclick} variant="brand" label="Hisotry" title="Primary action"  class="slds-m-left_x-small"></lightning-button>
 
 <lightning-combobox
-            name="progress"
-            label="Filter by "
-            value={value}
-            placeholder="Select Progress"
-            options={options}
-            onchange={handleChange} ></lightning-combobox>
+name="progress"
+label="Filter by "
+value={value}
+placeholder="Select Progress"
+options={options}
+onchange={handleChange} ></lightning-combobox>
 
-    <p>Selected value is: {value}</p>
+<p>Selected value is: {value}</p>
 
-    <lightning-datatable
-        data={tableData}
-        columns={columns}
-        key-field="Id"
-    ></lightning-datatable>
-    </template>
-    
+<lightning-datatable
+data={tableData}
+columns={columns}
+key-field="Id"
+></lightning-datatable>
+</template>
+
 </lightning-card>  
 </template>

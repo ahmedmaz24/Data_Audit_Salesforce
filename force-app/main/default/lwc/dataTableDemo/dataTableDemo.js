@@ -30,25 +30,25 @@ class:{fieldName:'ChangeColor'}
 
 ]
 export default class DataTableDemo extends LightningElement {
-    value = '';
-    show = '';
+value = '';
+show = '';
 
-    get options() {
-        return [
-            { label: 'Update', value: 'Update' },
-            { label: 'Delete', value: 'Delete' },
-            { label: 'Create', value: 'Create' },
-        ];
-    }
+get options() {
+    return [
+        { label: 'Update', value: 'Update' },
+        { label: 'Delete', value: 'Delete' },
+        { label: 'Create', value: 'Create' },
+    ];
+}
 
-    handleChange(event) {
-        this.value = event.detail.value;
-        if(event.detail.value == 'Delete'){
-            
-        }
-        
+handleChange(event) {
+    this.value = event.detail.value;
+    if(event.detail.value == 'Delete'){
         
     }
+    
+    
+}
 
 @api content;
 contactList = [];
@@ -58,26 +58,26 @@ columns = COLUMNS
 @wire(getAuddit)
 auditHandler({data,error}){
 if(data){
-    //if the type of change is delete , paint it in red color 
-    this.tableData = data.map(item=>{
-        let ChangeColor ;
-        if(item.type_of_change__c == 'Delete'){
-                ChangeColor="slds-text-color_error";
-        }else if(item.type_of_change__c =='Create'){
-                ChangeColor="slds-text-color_success";
+//if the type of change is delete , paint it in red color 
+this.tableData = data.map(item=>{
+    let ChangeColor ;
+    if(item.type_of_change__c == 'Delete'){
+            ChangeColor="slds-text-color_error";
+    }else if(item.type_of_change__c =='Create'){
+            ChangeColor="slds-text-color_success";
 
-            }else{
-            ChangeColor="slds-text-color_default";
-        }
-        
-        
+        }else{
+        ChangeColor="slds-text-color_default";
+    }
+    
+    
 
-        return{...item,"ChangeColor":ChangeColor}
-    }) 
-    console.log(this.tableData)  
+    return{...item,"ChangeColor":ChangeColor}
+}) 
+console.log(this.tableData)  
 }
 if(error){
-    console.error(error)
+console.error(error)
 }
 }
 //when user select a row or multiple rows , we can see it in the console in user messages (if you using chrome)
@@ -89,9 +89,9 @@ console.log(el);
 var selected = el.getSelectedRows();
 let selectedIdsArray = [];
 for (const element of selected) {
-    console.log(element.idi__c);
-    selectedIdsArray.push(element.idi__c);
-    
+console.log(element.idi__c);
+selectedIdsArray.push(element.idi__c);
+
 
 }
 getEmailSend({content : selectedIdsArray}).then(result=>{
@@ -110,72 +110,71 @@ getEmailSend({content : selectedIdsArray}).then(result=>{
 }
 
 renderedCallback() {
-    Promise.all([
-        loadScript(this, JSPDF)
-    ]);
+Promise.all([
+    loadScript(this, JSPDF)
+]);
 }
 generatePdf(number){
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({
-    });
-    
-    var text =[]
+const { jsPDF } = window.jspdf;
+const doc = new jsPDF({
+});
+
+var text =[]
 
 let today = new Date().toISOString().slice(0, 10)
 text.push("                                    Data Operation Logs for  "+number+today)
-    //text.push("\n Hi I'm Matt \n"+JSON.stringify(i)+"\n" );
+//text.push("\n Hi I'm Matt \n"+JSON.stringify(i)+"\n" );
 
-    doc.text(text ,10,10)
-    //doc.table(30, 30, this.contactList, { autosize:true });
-    doc.save("demo.pdf");
+doc.text(text ,10,10)
+//doc.table(30, 30, this.contactList, { autosize:true });
+doc.save("demo.pdf");
 }
 //the click method 
 pdfclick(){
 
-    var el = this.template.querySelector('lightning-datatable');
+var el = this.template.querySelector('lightning-datatable');
 
 console.log(el);
 var selected = el.getSelectedRows();
 let selectedIdsArrayPDF = [];
 for (const element of selected) {
-    console.log(element.idi__c);
-    selectedIdsArrayPDF.push(element.idi__c)}
-    
-    getContacts().then(result=>{
-        //this.selectedIdsArrayPDF = result;
-        this.generatePdf(5555);
+console.log(element.idi__c);
+selectedIdsArrayPDF.push(element.idi__c)}
 
-    });
+getContacts().then(result=>{
+    this.generatePdf(5555);
+
+});
 }
 historyclick(){
-    var el = this.template.querySelector('lightning-datatable');
+var el = this.template.querySelector('lightning-datatable');
 
-    console.log(el);
-    var selected = el.getSelectedRows();
-    let selectedIdsArray = [];
-    for (const element of selected) {
-        console.log(element.name_of_object__c);
-        selectedIdsArray.push(element.name_of_object__c);
-    
-    }
-    getEmailSendhistory({content :selectedIdsArray}).then(result=>{
-    
-    })
+console.log(el);
+var selected = el.getSelectedRows();
+let selectedIdsArray = [];
+for (const element of selected) {
+    console.log(element.name_of_object__c);
+    selectedIdsArray.push(element.name_of_object__c);
+
 }
+getEmailSendhistory({content :selectedIdsArray}).then(result=>{
 
+})
+}
+//this part is kept untill i find a solution for creating table in pdf
 /*createHeaders(keys) {
-    var result = [];
-    for (var i = 0; i < keys.length; i += 1) {
-        result.push({
-            id: keys[i],
-            name: keys[i],
-            prompt: keys[i],
-            width: 65,
-            align: "center",
-            padding: 0
-        });
-    }
-    return result;
+var result = [];
+for (var i = 0; i < keys.length; i += 1) {
+    result.push({
+        id: keys[i],
+        name: keys[i],
+        prompt: keys[i],
+        width: 65,
+        align: "center",
+        padding: 0
+    });
+}
+return result;
 }*/
 
 
