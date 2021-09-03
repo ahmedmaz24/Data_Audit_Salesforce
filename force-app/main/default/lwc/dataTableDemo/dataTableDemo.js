@@ -7,8 +7,14 @@ import getAudditcrea from '@salesforce/apex/TableController.getAuditsCreate'
 import getContacts from '@salesforce/apex/PdfGenerator.getContactsController';
 import getEmailSend from '@salesforce/apex/EmailClass.getEmailSend';
 import getEmailSendhistory from '@salesforce/apex/EmailClass.getEmailSendhistory';
+import CSVfile from '@salesforce/apex/CreateCSV.getCSV';
 import {loadScript} from "lightning/platformResourceLoader";
 import JSPDF from '@salesforce/resourceUrl/jspdf';
+import {refreshApex} from '@salesforce/apex';
+import formulatemessage from '@salesforce/apex/FormulateMessage.getFormulate';
+import ReverseFunctionJS from '@salesforce/apex/undo.getundo';
+
+
 
 
 const COLUMNS = [   
@@ -21,7 +27,7 @@ const COLUMNS = [
 class:{fieldName:'ChangeColor'}
 }},
 {label : 'Type Of Object', fieldName:'type_of_object__c'},
-{label : 'Date', fieldName:'date__c'},
+{label : 'Date', fieldName:'date__c' },
 {label : 'User', fieldName:'user_audit__c'},
 
 
@@ -30,22 +36,51 @@ class:{fieldName:'ChangeColor'}
 
 ]
 export default class DataTableDemo extends LightningElement {
-value = '';
-show = '';
+   undoclick(){
+    var el = this.template.querySelector('lightning-datatable');
 
+    console.log(el);
+    var selected = el.getSelectedRows();
+    let selectedIdsArray = [];
+    for (const element of selected) {
+    console.log(element.idi__c);
+    selectedIdsArray.push(element.idi__c);
+    
+    
+    }
+    ReverseFunctionJS({content : selectedIdsArray}).then(result=>{
+    
+    })      
+     }
+
+
+value = 'Default';
+show = '';
 get options() {
     return [
+        { label: 'Default', value: 'Default' },
         { label: 'Update', value: 'Update' },
         { label: 'Delete', value: 'Delete' },
         { label: 'Create', value: 'Create' },
     ];
 }
 
+
 handleChange(event) {
     this.value = event.detail.value;
+    
     if(event.detail.value == 'Delete'){
-        
+       this.value = 'Delete';
     }
+    if(event.detail.value == 'Create'){
+        this.value = 'Create' ;
+
+     }
+    if(event.detail.value == 'Update'){
+        this.value = 'Update';
+
+     }
+
     
     
 }
@@ -55,9 +90,10 @@ contactList = [];
 
 tableData
 columns = COLUMNS 
-@wire(getAuddit)
+@wire(getAuddit, {params :'$value'})
 auditHandler({data,error}){
 if(data){
+
 //if the type of change is delete , paint it in red color 
 this.tableData = data.map(item=>{
     let ChangeColor ;
@@ -69,12 +105,16 @@ this.tableData = data.map(item=>{
         }else{
         ChangeColor="slds-text-color_default";
     }
-    
+
+
     
 
     return{...item,"ChangeColor":ChangeColor}
+    
 }) 
-console.log(this.tableData)  
+console.log(this.tableData)
+
+
 }
 if(error){
 console.error(error)
@@ -114,16 +154,16 @@ Promise.all([
     loadScript(this, JSPDF)
 ]);
 }
-generatePdf(number){
+generatePdf(){
 const { jsPDF } = window.jspdf;
 const doc = new jsPDF({
 });
 
 var text =[]
 
-let today = new Date().toISOString().slice(0, 10)
-text.push("                                    Data Operation Logs for  "+number+today)
-//text.push("\n Hi I'm Matt \n"+JSON.stringify(i)+"\n" );
+//let today = new Date().toISOString().slice(0, 10)
+text.push("                                    Data Operation Logs for  "+today+'\n')
+//text.push("\n Hi I'm Matt \n"+JSON.stringify()+"\n" );
 
 doc.text(text ,10,10)
 //doc.table(30, 30, this.contactList, { autosize:true });
@@ -139,13 +179,15 @@ var selected = el.getSelectedRows();
 let selectedIdsArrayPDF = [];
 for (const element of selected) {
 console.log(element.idi__c);
-selectedIdsArrayPDF.push(element.idi__c)}
+selectedIdsArrayPDF.push(element.idi__c)};
+
 
 getContacts().then(result=>{
-    this.generatePdf(5555);
+    this.generatePdf();
 
 });
 }
+
 historyclick(){
 var el = this.template.querySelector('lightning-datatable');
 
@@ -176,7 +218,64 @@ for (var i = 0; i < keys.length; i += 1) {
 }
 return result;
 }*/
+@api contents;
+// this method validates the data and creates the csv file to download
+downloadCSVFile() {   
+    let rowEnd = '\n';
+    let csvString = '';
+    // this set elminates the duplicates if have any duplicate keys
+    let rowData = new Set();
 
+    // getting keys from data
+    this.tableData.forEach(function (record) {
+        Object.keys(record).forEach(function (key) {
+            rowData.add(key);
+        });
+    });
+
+    // Array.from() method returns an Array object from any object with a length property or an iterable object.
+    rowData = Array.from(rowData);
+    
+    // splitting using ','
+    csvString += rowData.join(',');
+    csvString += rowEnd;
+
+    // main for loop to get the data based on key value
+    for(let i=0; i < this.tableData.length; i++){
+        let colValue = 0;
+
+        // validating keys in data
+        for(let key in rowData) {
+            if(rowData.hasOwnProperty(key)) {
+                // Key value 
+                // Ex: Id, Name
+                let rowKey = rowData[key];
+                // add , after every value except the first.
+                if(colValue > 0){
+                    csvString += ',';
+                }
+                // If the column is undefined, it as blank in the CSV file.
+                let value = this.tableData[i][rowKey] === undefined ? '' : this.tableData[i][rowKey];
+                csvString += '"'+ value +'"';
+                colValue++;
+            }
+        }
+        csvString += rowEnd;
+    }
+
+    // Creating anchor element to download
+    let downloadElement = document.createElement('a');
+
+    // This  encodeURI encodes special characters, except: , / ? : @ & = + $ # (Use encodeURIComponent() to encode these characters).
+    downloadElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csvString);
+    downloadElement.target = '_self';
+    // CSV File Name
+    downloadElement.download = 'Audit Data.csv';
+    // below statement is required if you are using firefox browser
+    document.body.appendChild(downloadElement);
+    // click() Javascript function to download CSV file
+    downloadElement.click(); 
+}
 
 
 }

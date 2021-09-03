@@ -1,4 +1,6 @@
 public with sharing class FormulateMessage {
+    @AuraEnabled(cacheable=true)
+
 //formulate a message of objects 
 public static string getFormulate(List<Integer> content){
 string message;
